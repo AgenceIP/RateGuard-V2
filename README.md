@@ -37,6 +37,7 @@ Once that measurement exists it replaces the generic estimate in the comparator:
 2. In the **SQL Editor**, run in order:
    - `supabase/migrations/0001_init.sql`
    - `supabase/migrations/0002_payment_history_total_cost.sql`
+   - `supabase/migrations/0003_umrah_leads.sql`
    - `supabase/seed.sql`
 3. Copy `.env.local.example` to `.env.local` and fill in:
    - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings → API)
