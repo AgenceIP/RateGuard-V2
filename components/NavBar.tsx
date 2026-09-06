@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Moon, Sun, Wallet } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { cn } from "cn";
 
 const LINKS = [
@@ -10,6 +11,7 @@ const LINKS = [
   { href: "/employees", label: "Team" },
   { href: "/providers", label: "Providers" },
   { href: "/sharia", label: "Without a forward" },
+  { href: "/umrah", label: "Umrah agencies" },
   { href: "/crypto-check", label: "Crypto" },
   { href: "/settings", label: "Settings" },
 ];
@@ -21,11 +23,26 @@ export function NavBar() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3">
         <Link href="/" className="mr-2 flex shrink-0 items-center gap-2 sm:mr-4">
-          <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Wallet className="size-4" />
+          <span className="relative flex size-7 shrink-0 overflow-hidden rounded-lg ring-1 ring-foreground/10">
+            <Image src="/brand/mark.jpeg" alt="RateGuard" fill sizes="28px" className="object-cover" priority />
           </span>
-          <span className="hidden text-sm font-semibold leading-tight lg:block">
-            RateGuard
+          <span className="hidden lg:block">
+            <Image
+              src="/brand/logo-light.jpeg"
+              alt="RateGuard"
+              width={480}
+              height={128}
+              className="h-6 w-auto rounded-md dark:hidden"
+              priority
+            />
+            <Image
+              src="/brand/logo-dark.jpeg"
+              alt="RateGuard"
+              width={480}
+              height={128}
+              className="hidden h-6 w-auto rounded-md dark:block"
+              priority
+            />
             <span className="block text-[11px] font-normal text-muted-foreground">international payroll costs</span>
           </span>
         </Link>
