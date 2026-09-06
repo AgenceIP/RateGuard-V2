@@ -1,69 +1,188 @@
-import Image from "next/image";
+import Link from "next/link";
+import { AlertTriangle, ArrowRight, CalendarClock, Globe2, Wallet } from "lucide-react";
+import { getServerSupabaseClient } from "@/lib/supabase/server";
+import { getCompany } from "@/lib/company";
+import { listEmployees } from "@/lib/employees";
+import { computePaymentInsight, type PaymentInsight } from "@/lib/payment-insight";
+import { DemoBanner } from "@/components/DemoBanner";
+import { StatTile } from "@/components/StatTile";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { countryByCode } from "@/lib/data/countries";
+import { daysUntilLabel, initials, money } from "@/lib/format";
+import type { Employee } from "@/lib/types";
 
-export default function Home() {
+// Payroll data must reflect the database on every request — the exchange-rate
+// fetches keep their own 1 h cache inside this render, so this costs little.
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const supabase = getServerSupabaseClient();
+  const { company } = await getCompany();
+  const { employees, demo } = await listEmployees({ activeOnly: true });
+
+  const insights = await Promise.all(
+    employees.map(async (employee) => ({
+      employee,
+      insight: await computePaymentInsight(supabase, employee, company.base_currency, company.sharia_mode),
+    })),
+  );
+
+  const totalOutflow = insights.reduce((sum, { insight }) => sum + (insight.compare?.payNowCostBase ?? 0), 0);
+  const totalRisk = insights.reduce((sum, { insight }) => sum + (insight.compare?.waitAndPayLater.riskOfWaitingBase ?? 0), 0);
+  const currencies = new Set(employees.map((e) => e.currency));
+  const missingData = insights.filter(({ insight }) => !insight.dataAvailable).length;
+  const nextPayment = insights.find(({ employee }) => employee.next_payment_date);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="space-y-8">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight">Upcoming payments</h1>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          For each payment coming up: what it will cost in real dollars, and what you can do to reduce the risk. No
+          rate predictions — only ranges built from what actually happened.
+        </p>
+      </header>
+
+      {demo && <DemoBanner />}
+
+      {employees.length > 0 && (
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatTile
+            label="Going out for these payments"
+            value={money(totalOutflow, company.base_currency)}
+            hint={`in ${company.base_currency}, estimated fees included`}
+            icon={<Wallet className="size-3.5" />}
+          />
+          <StatTile
+            label="Risk if you wait"
+            value={`up to ${money(totalRisk, company.base_currency)}`}
+            hint="unfavourable scenario, across all payments"
+            tone="warning"
+            icon={<AlertTriangle className="size-3.5" />}
+          />
+          <StatTile
+            label="Currencies to manage"
+            value={String(currencies.size)}
+            hint={missingData > 0 ? `${missingData} without reliable rate data` : "all covered by the ECB"}
+            icon={<Globe2 className="size-3.5" />}
+          />
+          <StatTile
+            label="Next due"
+            value={nextPayment ? daysUntilLabel(nextPayment.employee.next_payment_date) : "—"}
+            hint={nextPayment ? nextPayment.employee.name : undefined}
+            icon={<CalendarClock className="size-3.5" />}
+          />
+        </section>
+      )}
+
+      {employees.length === 0 && (
+        <Card>
+          <CardContent className="flex flex-col items-start gap-3 py-10">
+            <p className="text-sm text-muted-foreground">No active employees or contractors yet.</p>
+            <Button render={<Link href="/employees/new" />} nativeButton={false}>
+              Add someone
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <section className="space-y-4">
+        {insights.map(({ employee, insight }) => (
+          <PaymentCard
+            key={employee.id}
+            employee={employee}
+            insight={insight}
+            baseCurrency={company.base_currency}
+          />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function PaymentCard({
+  employee,
+  insight,
+  baseCurrency,
+}: {
+  employee: Employee;
+  insight: PaymentInsight;
+  baseCurrency: string;
+}) {
+  const country = countryByCode(employee.country_code);
+  const risk = insight.compare?.waitAndPayLater.riskOfWaitingBase ?? null;
+
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
+              {initials(employee.name)}
+            </span>
+            <div>
+              <p className="font-medium leading-tight">{employee.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {country?.name ?? employee.country_code} · {employee.type === "employee" ? "Employee" : "Contractor"} ·{" "}
+                {money(employee.amount, employee.currency)}
+              </p>
+            </div>
+          </div>
+
+          <span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium">
+            {daysUntilLabel(employee.next_payment_date)}
+          </span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+
+        <p
+          className="rounded-xl border-l-2 bg-accent/50 px-4 py-3 text-sm leading-relaxed"
+          style={{ borderColor: "var(--primary)" }}
+        >
+          {insight.plainSummary}
+        </p>
+
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 sm:grid-cols-3">
+            <MiniStat
+              label="If you pay today"
+              value={insight.compare ? money(insight.compare.payNowCostBase, baseCurrency) : "—"}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <MiniStat
+              label="Risk if you wait"
+              value={risk !== null && risk > 0 ? `up to ${money(risk, baseCurrency)}` : "not measurable"}
+              tone={risk !== null && risk > 0 ? "warning" : "muted"}
+            />
+            <MiniStat
+              label="Volatility (365d)"
+              value={insight.vol365d ? `${insight.vol365d.annualizedPct.toFixed(1)}%` : "no data"}
+              tone={insight.vol365d ? "default" : "muted"}
+            />
+          </div>
+
+          <Button
+            render={<Link href={`/payments/${employee.id}/compare`} />}
+            nativeButton={false}
+            variant="outline"
+            size="sm"
           >
-            Documentation
-          </a>
+            Compare options
+            <ArrowRight className="size-3.5" />
+          </Button>
         </div>
-      </main>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MiniStat({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "warning" | "muted" }) {
+  const color = tone === "warning" ? "var(--warning)" : tone === "muted" ? "var(--muted-foreground)" : "var(--foreground)";
+  return (
+    <div>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium tabular-nums" style={{ color }}>
+        {value}
+      </p>
     </div>
   );
 }

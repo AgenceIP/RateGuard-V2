@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# hackathon material that isn't project source
+# (large binaries bloat every clone permanently, and the organizers'
+#  documents aren't ours to redistribute)
+MuslimHacks2026Challenges.pdf
+MuslimHacks Judging Rubric.pdf
+/Video/

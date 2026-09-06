@@ -1,0 +1,78 @@
+-- Default singleton company profile.
+insert into company (id, name, base_currency, sharia_mode)
+values ('00000000-0000-0000-0000-000000000001', 'My company', 'CAD', false)
+on conflict (id) do nothing;
+
+-- Baseline crypto-payroll regulatory fallback, mirroring lib/crypto/baseline.ts.
+-- Used only when there is no ANTHROPIC_API_KEY configured (so the feature still
+-- works out of the box) or before the first live check. checked_at is set to a
+-- past date on purpose so the app always treats it as stale and prefers a live
+-- web-search refresh once an API key is available.
+insert into crypto_regulatory_cache (country_code, status, risks, sources, summary, checked_at, origin)
+values
+  ('US', 'Not legal tender; paying salary in crypto is non-standard',
+   '["Token volatility, unless it''s a stablecoin","Federal wage law (FLSA) generally requires payment in legal tender (USD)","Complex tax treatment for both employer and employee","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In the United States, crypto is not legal tender and federal minimum-wage law generally requires payment in USD. Paying a salary in crypto remains legally risky without a purpose-built structure.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('CA', 'Not legal tender; paying salary in crypto is non-standard',
+   '["Token volatility, unless it''s a stablecoin","Provincial employment standards generally require payment in legal tender","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In Canada, crypto is not legal tender. Some jurisdictions tolerate partial payment in kind with consent, but it is neither standard practice nor advisable without legal advice.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('GB', 'Not legal tender; taxable as employment income',
+   '["Token volatility, unless it''s a stablecoin","HMRC generally treats crypto received as pay as taxable income","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In the United Kingdom, cryptoassets are not legal tender. HMRC generally taxes crypto received as remuneration, which complicates payroll.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('FR', 'Not legal tender; salary must be paid in euros',
+   '["Token volatility, unless it''s a stablecoin","The Labour Code requires salary to be paid in legal tender (the euro)","The EU framework (MiCA) regulates service providers without making crypto legal tender","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In France, salary must be paid in euros. Cryptoassets are regulated at EU level for service providers, but do not constitute legal tender for payroll.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('IN', 'Legal status ambiguous; very heavy tax treatment on crypto',
+   '["Token volatility, unless it''s a stablecoin","Specific and very high taxation on crypto gains in India","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In India, crypto is not legal tender and carries particularly heavy taxation, which makes paying salary in crypto impractical and risky.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('PH', 'Regulated by the central bank (BSP); salary must be in legal tender',
+   '["Token volatility, unless it''s a stablecoin","The Labour Code generally requires payment in legal tender (PHP)","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In the Philippines, crypto service providers are regulated by the central bank (BSP), but employment law normally requires payment in Philippine pesos.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('NG', 'History of banking restrictions; the naira remains the only legal tender',
+   '["Token volatility, unless it''s a stablecoin","History of banking restrictions on crypto exchanges in Nigeria","The naira remains the only legal tender for paying salary","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In Nigeria, the central bank has historically restricted links between banks and crypto platforms. The naira remains the only legal tender for payroll.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('MX', 'Regulated under the Fintech Law; salary must be in pesos',
+   '["Token volatility, unless it''s a stablecoin","Federal labour law requires payment in Mexican pesos","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In Mexico, crypto exchanges are regulated under the Ley Fintech, but labour law requires salary to be paid in Mexican pesos.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('BR', 'A cryptoasset legal framework exists; salary must be in reais',
+   '["Token volatility, unless it''s a stablecoin","The legal framework regulates service providers without making crypto legal tender","Labour law requires payment in Brazilian reais","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'Brazil has a legal framework for cryptoasset service providers, but salary must generally be paid in Brazilian reais.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('ZA', 'Crypto regulated as a financial product (FSCA); salary must be in rand',
+   '["Token volatility, unless it''s a stablecoin","The FSCA regulates crypto as a financial product, not as legal tender","Labour law requires payment in South African rand","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In South Africa, the FSCA regulates cryptoassets as financial products, but salary must normally be paid in rand.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('PK', 'Legal status unsettled, historically discouraged by the central bank',
+   '["Token volatility, unless it''s a stablecoin","The SBP has historically discouraged the use of crypto","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In Pakistan, the status of crypto remains unsettled and the central bank (SBP) has historically discouraged its use — paying salary in crypto is particularly risky there.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('ID', 'Treated as a tradable commodity; salary must be in rupiah',
+   '["Token volatility, unless it''s a stablecoin","Crypto is regulated as a trading commodity, not as legal tender","Manpower law requires payment in Indonesian rupiah","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In Indonesia, crypto is regulated as a commodity for trading rather than legal tender, and labour law requires payment in rupiah.',
+   '2025-01-01T00:00:00Z', 'baseline'),
+  ('AE', 'Regulatory framework evolving (e.g. VARA in Dubai); still non-standard for payroll',
+   '["Token volatility, unless it''s a stablecoin","The regulatory framework is still young and differs between free zones","Local banking restrictions on converting to local currency","No legal protection for the worker if the value drops"]'::jsonb,
+   '[{"label":"Internal baseline, not verified live — confirm with a live search or a local advisor","url":null}]'::jsonb,
+   'In the United Arab Emirates a regulatory framework is developing (e.g. VARA in Dubai), but paying salary in crypto remains non-standard and varies by free zone.',
+   '2025-01-01T00:00:00Z', 'baseline')
+on conflict (country_code) do nothing;
