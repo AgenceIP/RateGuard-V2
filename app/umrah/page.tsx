@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, Lightbulb, Mail } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download, Lightbulb, Link2, Mail } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { submitUmrahLead } from "./actions";
 
 type OriginCode = "CA" | "GB" | "EU" | "US" | "AU" | "OTHER";
 
@@ -47,8 +50,14 @@ type Result = {
   compliance: Compliance;
 };
 
+const GUIDE_URL = "/downloads/canadian-umrah-guide.pdf";
+
 function fmt(amount: number, currency: string) {
   return new Intl.NumberFormat("en-CA", { style: "currency", currency, maximumFractionDigits: 2 }).format(amount);
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 export default function UmrahPage() {
@@ -58,6 +67,17 @@ export default function UmrahPage() {
   const [sarPerPilgrim, setSarPerPilgrim] = useState("5000");
   const [compliance, setCompliance] = useState<Compliance>("conventional");
   const [result, setResult] = useState<Result | null>(null);
+
+  const [guideEmail, setGuideEmail] = useState("");
+  const [guideUnlocked, setGuideUnlocked] = useState(false);
+  const [guideError, setGuideError] = useState<string | null>(null);
+  const [guidePending, startGuideTransition] = useTransition();
+
+  const [ofxWantConnect, setOfxWantConnect] = useState(false);
+  const [ofxEmail, setOfxEmail] = useState("");
+  const [ofxSubmitted, setOfxSubmitted] = useState(false);
+  const [ofxError, setOfxError] = useState<string | null>(null);
+  const [ofxPending, startOfxTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -85,6 +105,58 @@ export default function UmrahPage() {
     });
   }
 
+  function handleGuideSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setGuideError(null);
+    if (!isValidEmail(guideEmail)) {
+      setGuideError("Enter a valid email address.");
+      return;
+    }
+    startGuideTransition(async () => {
+      const res = await submitUmrahLead({
+        email: guideEmail,
+        agencyName: agencyName || null,
+        originCountry: originCode,
+        pilgrims: Number(pilgrims) || null,
+        sarPerPilgrim: Number(sarPerPilgrim) || null,
+        compliancePreference: compliance,
+        source: "guide_download",
+      });
+      if (res.error) {
+        setGuideError(res.error);
+        return;
+      }
+      setGuideUnlocked(true);
+    });
+  }
+
+  function handleOfxSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setOfxError(null);
+    const email = ofxEmail || guideEmail;
+    if (!isValidEmail(email)) {
+      setOfxError("Enter a valid email address.");
+      return;
+    }
+    startOfxTransition(async () => {
+      const res = await submitUmrahLead({
+        email,
+        agencyName: agencyName || null,
+        originCountry: originCode,
+        pilgrims: Number(pilgrims) || null,
+        sarPerPilgrim: Number(sarPerPilgrim) || null,
+        compliancePreference: compliance,
+        source: "ofx_link_request",
+      });
+      if (res.error) {
+        setOfxError(res.error);
+        return;
+      }
+      setOfxEmail(email);
+      setOfxSubmitted(true);
+    });
+  }
+
   return (
     <div className="max-w-4xl space-y-8">
       <header className="space-y-3">
@@ -92,8 +164,8 @@ export default function UmrahPage() {
           Overcoming Currency Volatility with Shariah-Compliant Concepts
         </h1>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          A working guide for Umrah agencies on protecting package pricing from Saudi Riyal swings — and how to do it
-          in a way that respects Islamic financial frameworks.
+          A working guide for Umrah agencies on protecting package pricing from Saudi Riyal swings — read the
+          concept below, then run your own numbers in the calculator.
         </p>
       </header>
 
@@ -104,10 +176,10 @@ export default function UmrahPage() {
           <CardContent className="space-y-3">
             <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">The problem</p>
             <p className="text-sm leading-relaxed">
-              Umrah agencies price their packages months in advance in local currency (e.g. CAD, USD, EUR), but must
-              pay Saudi hotels and transport providers in Saudi Riyal (SAR) later. If the Riyal strengthens in those
-              months, your profit margins disappear — or you&apos;re forced to ask pilgrims (pèlerins) for a price
-              increase.
+              Umrah agencies price their packages months in advance in local currency (e.g. CAD, USD, EUR), but
+              must pay Saudi hotels and transport providers in Saudi Riyal (SAR) later. If the Riyal strengthens in
+              those months, your profit margins disappear — or you&apos;re forced to ask pilgrims (pèlerins) for a
+              price increase.
             </p>
           </CardContent>
         </Card>
@@ -118,8 +190,8 @@ export default function UmrahPage() {
               The conventional solution
             </p>
             <p className="text-sm leading-relaxed">
-              Corporations use a <strong>forward contract</strong> to lock in today&apos;s exchange rate for a future
-              payment date.
+              Corporations use a <strong>forward contract</strong> to lock in today&apos;s exchange rate for a
+              future payment date.
             </p>
           </CardContent>
         </Card>
@@ -150,8 +222,69 @@ export default function UmrahPage() {
       <Separator />
 
       <section className="space-y-4">
+        <Card className="ring-primary/30">
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Free guide</p>
+                <h2 className="mt-0.5 text-lg font-semibold leading-snug">
+                  The Canadian Umrah Agency Guide to Shariah-Compliant Currency Risk Management
+                </h2>
+              </div>
+              <Badge variant="secondary">3 pages · PDF</Badge>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              A short, practical guide covering the currency risk problem, how Wa&apos;ad works as the
+              Shariah-compliant alternative to a standard forward, and a step-by-step checklist for locking in your
+              rate before your next departure.
+            </p>
+
+            {guideUnlocked ? (
+              <div className="flex flex-wrap items-center gap-3 rounded-xl bg-muted/50 p-3">
+                <CheckCircle2 className="size-4 shrink-0" style={{ color: "var(--good)" }} />
+                <p className="flex-1 text-sm">
+                  Sent — download is ready below. We&apos;ll also email a copy to <strong>{guideEmail}</strong>.
+                </p>
+                <Button
+                  render={<a href={GUIDE_URL} download="Canadian-Umrah-Agency-Guide.pdf" />}
+                  nativeButton={false}
+                  size="sm"
+                >
+                  <Download className="size-4" />
+                  Download the guide
+                </Button>
+              </div>
+            ) : (
+              <form onSubmit={handleGuideSubmit} className="flex flex-wrap items-start gap-2">
+                <div className="min-w-[220px] flex-1 space-y-1.5">
+                  <Label htmlFor="guideEmail" className="sr-only">
+                    Email address
+                  </Label>
+                  <Input
+                    id="guideEmail"
+                    type="email"
+                    placeholder="you@agency.com"
+                    value={guideEmail}
+                    onChange={(e) => setGuideEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" disabled={guidePending}>
+                  <Mail className="size-4" />
+                  {guidePending ? "Sending…" : "Get the free guide"}
+                </Button>
+              </form>
+            )}
+            {guideError && <p className="text-sm text-destructive">{guideError}</p>}
+          </CardContent>
+        </Card>
+      </section>
+
+      <Separator />
+
+      <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">Agency assessment</h2>
+          <h2 className="text-lg font-semibold">Agency assessment &amp; calculator</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Tell us about your Umrah program and we&apos;ll check platform availability and compliance fit, then
             estimate a per-pilgrim rate-lock cost.
@@ -368,6 +501,68 @@ export default function UmrahPage() {
           </section>
         </>
       )}
+
+      <Separator />
+
+      <section className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base">
+              <Link2 className="size-4 text-muted-foreground" />
+              Connect your account to execute the hedge
+              <Badge variant="outline">Coming soon</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              RateGuard doesn&apos;t move money directly yet. When you&apos;re ready to lock in a rate, we can
+              request a connection between your agency and <strong>OFX</strong>&apos;s corporate FX desk so a
+              specialist can set up and execute this Wa&apos;ad-structured forward on your behalf.
+            </p>
+
+            <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl bg-muted/50 p-3">
+              <span>
+                <span className="block text-sm font-medium">Request an OFX account connection</span>
+                <span className="block text-xs text-muted-foreground">
+                  Not a live integration — we&apos;ll manually set this up for you.
+                </span>
+              </span>
+              <Switch checked={ofxWantConnect} onCheckedChange={(v) => setOfxWantConnect(Boolean(v))} />
+            </label>
+
+            {ofxWantConnect &&
+              (ofxSubmitted ? (
+                <div className="flex items-center gap-2.5 rounded-xl bg-muted/50 p-3 text-sm">
+                  <CheckCircle2 className="size-4 shrink-0" style={{ color: "var(--good)" }} />
+                  <span>
+                    Request received for <strong>{ofxEmail}</strong> — a RateGuard specialist will reach out within
+                    1 business day to link your OFX account.
+                  </span>
+                </div>
+              ) : (
+                <form onSubmit={handleOfxSubmit} className="flex flex-wrap items-start gap-2">
+                  <div className="min-w-[220px] flex-1 space-y-1.5">
+                    <Label htmlFor="ofxEmail" className="sr-only">
+                      Email address
+                    </Label>
+                    <Input
+                      id="ofxEmail"
+                      type="email"
+                      placeholder="you@agency.com"
+                      value={ofxEmail || guideEmail}
+                      onChange={(e) => setOfxEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" variant="outline" disabled={ofxPending}>
+                    {ofxPending ? "Sending…" : "Send request"}
+                  </Button>
+                </form>
+              ))}
+            {ofxError && <p className="text-sm text-destructive">{ofxError}</p>}
+          </CardContent>
+        </Card>
+      </section>
 
       <Separator />
 

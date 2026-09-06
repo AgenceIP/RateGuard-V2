@@ -22,29 +22,23 @@ export function NavBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3">
-        <Link href="/" className="mr-2 flex shrink-0 items-center gap-2 sm:mr-4">
-          <span className="relative flex size-7 shrink-0 overflow-hidden rounded-lg ring-1 ring-foreground/10">
-            <Image src="/brand/mark.jpeg" alt="RateGuard" fill sizes="28px" className="object-cover" priority />
-          </span>
-          <span className="hidden lg:block">
-            <Image
-              src="/brand/logo-light.jpeg"
-              alt="RateGuard"
-              width={480}
-              height={128}
-              className="h-6 w-auto rounded-md dark:hidden"
-              priority
-            />
-            <Image
-              src="/brand/logo-dark.jpeg"
-              alt="RateGuard"
-              width={480}
-              height={128}
-              className="hidden h-6 w-auto rounded-md dark:block"
-              priority
-            />
-            <span className="block text-[11px] font-normal text-muted-foreground">international payroll costs</span>
-          </span>
+        <Link href="/" className="mr-2 flex shrink-0 items-center sm:mr-4">
+          <Image
+            src="/brand/logo-light.jpeg"
+            alt="RateGuard"
+            width={480}
+            height={128}
+            className="h-7 w-auto rounded-md dark:hidden"
+            priority
+          />
+          <Image
+            src="/brand/logo-dark.jpeg"
+            alt="RateGuard"
+            width={480}
+            height={128}
+            className="hidden h-7 w-auto rounded-md dark:block"
+            priority
+          />
         </Link>
 
         <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto whitespace-nowrap">

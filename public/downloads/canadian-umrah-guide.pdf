@@ -1,0 +1,261 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 1876 >>
+stream
+BT
+/F2 20 Tf
+1 0 0 1 56 721.00 Tm
+(The Canadian Umrah Agency Guide to) Tj
+1 0 0 1 56 704.00 Tm
+(Shariah-Compliant Currency Risk Management) Tj
+/F1 11 Tf
+1 0 0 1 56 679.00 Tm
+(A short guide from RateGuard) Tj
+/F1 10 Tf
+1 0 0 1 56 646.00 Tm
+( ) Tj
+/F2 13 Tf
+1 0 0 1 56 631.00 Tm
+(1. The problem: your margin depends on a rate you don't control) Tj
+/F1 10 Tf
+1 0 0 1 56 612.00 Tm
+( ) Tj
+1 0 0 1 56 595.00 Tm
+(Canadian Umrah agencies price land packages in CAD months before) Tj
+1 0 0 1 56 580.00 Tm
+(departure, but pay Saudi hotels, transport, and visa providers in Saudi) Tj
+1 0 0 1 56 565.00 Tm
+(Riyal \(SAR\) closer to the travel date. Between quoting and paying, the) Tj
+1 0 0 1 56 550.00 Tm
+(CAD/SAR rate can move. If the Riyal strengthens against the Canadian) Tj
+1 0 0 1 56 535.00 Tm
+(dollar, the same SAR bill costs more CAD than you budgeted for -) Tj
+1 0 0 1 56 520.00 Tm
+(eating directly into your margin, or forcing a late price increase on) Tj
+1 0 0 1 56 505.00 Tm
+(pilgrims \(pelerins\) who already paid a fixed price.) Tj
+1 0 0 1 56 482.00 Tm
+( ) Tj
+1 0 0 1 56 463.00 Tm
+(This is pure currency risk, not a business or operational risk. It has) Tj
+1 0 0 1 56 448.00 Tm
+(nothing to do with how well the season is run, and it is entirely) Tj
+1 0 0 1 56 433.00 Tm
+(possible to manage it - without predicting which way the rate will move.) Tj
+1 0 0 1 56 408.00 Tm
+( ) Tj
+/F2 13 Tf
+1 0 0 1 56 387.00 Tm
+(2. Why this hits Umrah agencies harder than most importers) Tj
+/F1 10 Tf
+1 0 0 1 56 368.00 Tm
+( ) Tj
+1 0 0 1 56 353.00 Tm
+(- Package prices are fixed and public months in advance.) Tj
+1 0 0 1 56 338.00 Tm
+(- The SAR leg \(hotels, transport, visas\) is a large majority of cost.) Tj
+1 0 0 1 56 323.00 Tm
+(- Group sizes are known early, so the exposure is easy to calculate -) Tj
+1 0 0 1 56 308.00 Tm
+(  which also means it is easy to hedge, once you decide to.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 2547 >>
+stream
+BT
+/F2 13 Tf
+1 0 0 1 56 721.00 Tm
+(3. The conventional fix, and why it needs adapting) Tj
+/F1 10 Tf
+1 0 0 1 56 702.00 Tm
+( ) Tj
+1 0 0 1 56 687.00 Tm
+(Corporations facing this exact problem use a forward contract: an) Tj
+1 0 0 1 56 672.00 Tm
+(agreement to exchange currency at an agreed rate on a future date. It) Tj
+1 0 0 1 56 657.00 Tm
+(removes the guesswork, at the cost of giving up any upside if the rate) Tj
+1 0 0 1 56 642.00 Tm
+(moves in your favour.) Tj
+1 0 0 1 56 619.00 Tm
+( ) Tj
+1 0 0 1 56 600.00 Tm
+(In traditional Islamic finance, a standard forward can be problematic:) Tj
+1 0 0 1 56 585.00 Tm
+(it fixes an exchange today for currency that is only actually delivered) Tj
+1 0 0 1 56 570.00 Tm
+(later, without either side taking possession at the time of the) Tj
+1 0 0 1 56 555.00 Tm
+(agreement. That structure is part of what scholars have raised concerns) Tj
+1 0 0 1 56 540.00 Tm
+(about in currency forwards generally.) Tj
+1 0 0 1 56 515.00 Tm
+( ) Tj
+/F2 13 Tf
+1 0 0 1 56 494.00 Tm
+(4. Wa'ad: the Shariah-compliant alignment) Tj
+/F1 10 Tf
+1 0 0 1 56 475.00 Tm
+( ) Tj
+1 0 0 1 56 460.00 Tm
+(Modern Islamic finance addresses this with Wa'ad - a binding unilateral) Tj
+1 0 0 1 56 445.00 Tm
+(promise. Under a Wa'ad structure:) Tj
+1 0 0 1 56 426.00 Tm
+( ) Tj
+1 0 0 1 56 411.00 Tm
+(- The agency \(or the provider\) makes a binding promise today to) Tj
+1 0 0 1 56 396.00 Tm
+(  exchange currency at a specific rate on a specific future date.) Tj
+1 0 0 1 56 381.00 Tm
+(- No exchange of money happens at the time of the promise.) Tj
+1 0 0 1 56 366.00 Tm
+(- The actual transaction and exchange only occur on the maturity date) Tj
+1 0 0 1 56 351.00 Tm
+(  itself, when both sides genuinely deliver what was promised.) Tj
+1 0 0 1 56 328.00 Tm
+( ) Tj
+1 0 0 1 56 309.00 Tm
+(The economics are the same as a forward - your rate is locked - but the) Tj
+1 0 0 1 56 294.00 Tm
+(structure \(a promise, executed later, rather than a same-day exchange) Tj
+1 0 0 1 56 279.00 Tm
+(of undelivered currency\) is what modern Islamic corporate banking desks) Tj
+1 0 0 1 56 264.00 Tm
+(use to offer this while respecting Islamic financial frameworks.) Tj
+1 0 0 1 56 241.00 Tm
+( ) Tj
+1 0 0 1 56 222.00 Tm
+(Important: most conventional fintech providers \(OFX included\) offer the) Tj
+1 0 0 1 56 207.00 Tm
+(same underlying economic structure as a Wa'ad, but typically without a) Tj
+1 0 0 1 56 192.00 Tm
+(formal Shariah certification board attached to it. If certification) Tj
+1 0 0 1 56 177.00 Tm
+(matters to your agency, ask for it explicitly - see the checklist.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 2621 >>
+stream
+BT
+/F2 13 Tf
+1 0 0 1 56 721.00 Tm
+(5. Your action checklist) Tj
+/F1 10 Tf
+1 0 0 1 56 702.00 Tm
+( ) Tj
+1 0 0 1 56 687.00 Tm
+(1. Calculate your season's total SAR exposure: pilgrims x land package) Tj
+1 0 0 1 56 672.00 Tm
+(   cost per pilgrim in SAR. Do this per departure group, not just once) Tj
+1 0 0 1 56 657.00 Tm
+(   a year - group sizes and dates vary.) Tj
+1 0 0 1 56 636.00 Tm
+( ) Tj
+1 0 0 1 56 621.00 Tm
+(2. Decide your compliance preference up front: conventional corporate) Tj
+1 0 0 1 56 606.00 Tm
+(   forward, or a Shariah-certified Wa'ad structure. Put it in writing) Tj
+1 0 0 1 56 591.00 Tm
+(   when you request quotes, so providers answer the right question.) Tj
+1 0 0 1 56 570.00 Tm
+( ) Tj
+1 0 0 1 56 555.00 Tm
+(3. Get a firm rate-lock quote before final pricing, not after. A quote) Tj
+1 0 0 1 56 540.00 Tm
+(   typically includes a transfer fee and an upfront margin deposit -) Tj
+1 0 0 1 56 525.00 Tm
+(   commonly 5-10% of the locked amount - held until settlement.) Tj
+1 0 0 1 56 504.00 Tm
+( ) Tj
+1 0 0 1 56 489.00 Tm
+(4. Keep a liquidity buffer of 5-10% of your locked SAR exposure on) Tj
+1 0 0 1 56 474.00 Tm
+(   hand. This is the deposit providers hold as security, not a fee you) Tj
+1 0 0 1 56 459.00 Tm
+(   lose - budget for it as working capital, not cost.) Tj
+1 0 0 1 56 438.00 Tm
+( ) Tj
+1 0 0 1 56 423.00 Tm
+(5. If Shariah certification is a requirement, ask explicitly for it -) Tj
+1 0 0 1 56 408.00 Tm
+(   and ask which board certified the structure. If a provider cannot) Tj
+1 0 0 1 56 393.00 Tm
+(   answer clearly, treat that as your answer.) Tj
+1 0 0 1 56 372.00 Tm
+( ) Tj
+1 0 0 1 56 357.00 Tm
+(6. Re-run the numbers per departure. Rates, group sizes, and SAR costs) Tj
+1 0 0 1 56 342.00 Tm
+(   change season to season - a hedge is not a one-time decision.) Tj
+1 0 0 1 56 313.00 Tm
+( ) Tj
+/F2 13 Tf
+1 0 0 1 56 292.00 Tm
+(Where RateGuard fits in) Tj
+/F1 10 Tf
+1 0 0 1 56 273.00 Tm
+( ) Tj
+1 0 0 1 56 258.00 Tm
+(RateGuard's Umrah calculator turns step 1 into a live number for your) Tj
+1 0 0 1 56 243.00 Tm
+(own group sizes and SAR costs, flags whether your origin country is) Tj
+1 0 0 1 56 228.00 Tm
+(supported by digital corridor providers like OFX today, and routes you) Tj
+1 0 0 1 56 213.00 Tm
+(to the right guidance for step 2 based on your compliance preference.) Tj
+1 0 0 1 56 188.00 Tm
+( ) Tj
+/F1 9 Tf
+1 0 0 1 56 157.00 Tm
+(This guide is educational and does not constitute financial or Shariah) Tj
+1 0 0 1 56 142.00 Tm
+(advice. Confirm certification claims directly with your chosen) Tj
+1 0 0 1 56 127.00 Tm
+(provider and, where it matters to you, with your own Shariah advisor.) Tj
+ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000127 00000 n 
+0000000197 00000 n 
+0000000272 00000 n 
+0000000408 00000 n 
+0000002336 00000 n 
+0000002472 00000 n 
+0000005071 00000 n 
+0000005208 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+7882
+%%EOF
