@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { getServerSupabaseClient } from "@/lib/supabase/server";
+import { getCompany } from "@/lib/company";
+import { DEMO_EMPLOYEES, buildDemoHistory } from "@/lib/demo-data";
+import { getHistoricalRates } from "@/lib/fx/frankfurter";
 import type { EmployeeFormValues } from "@/components/EmployeeForm";
 
 const NOT_CONNECTED_ERROR =
@@ -108,4 +111,63 @@ export async function setEmployeeActive(id: string, active: boolean): Promise<{ 
   revalidatePath("/employees");
   revalidatePath("/");
   return {};
+}
+
+/**
+ * Populates the real, connected database with the same profiles used in
+ * demo mode (lib/demo-data.ts) plus priced payment history, so a freshly
+ * connected Supabase project has something to look at and track. Only
+ * offered — and only runs — on an empty team, so re-clicking can't pile up
+ * duplicates.
+ */
+export async function seedDemoData(): Promise<{ error?: string; seeded?: number }> {
+  const supabase = getServerSupabaseClient();
+  if (!supabase) return { error: NOT_CONNECTED_ERROR };
+
+  const { count } = await supabase.from("employees").select("id", { count: "exact", head: true });
+  if (count && count > 0) return { error: "You already have team members — seed only runs on an empty team." };
+
+  const { company } = await getCompany();
+  let seeded = 0;
+
+  for (const demo of DEMO_EMPLOYEES) {
+    const { data: inserted, error: employeeError } = await supabase
+      .from("employees")
+      .insert({
+        name: demo.name,
+        country_code: demo.country_code,
+        currency: demo.currency,
+        amount: demo.amount,
+        frequency: demo.frequency,
+        custom_frequency_days: demo.custom_frequency_days,
+        type: demo.type,
+        active: demo.active,
+        next_payment_date: demo.next_payment_date,
+      })
+      .select("id")
+      .single();
+
+    if (employeeError || !inserted) continue;
+    seeded++;
+
+    const series = await getHistoricalRates(supabase, company.base_currency, demo.currency, 400).catch(() => []);
+    const history = buildDemoHistory(demo, series);
+    if (history.length === 0) continue;
+
+    await supabase.from("payment_history").insert(
+      history.map((entry) => ({
+        employee_id: inserted.id,
+        paid_at: entry.paid_at,
+        amount_source_currency: entry.amount_source_currency,
+        total_cost_base_currency: entry.total_cost_base_currency,
+        fx_rate_used: entry.fx_rate_used,
+        fees_paid: entry.fees_paid,
+        notes: entry.notes,
+      })),
+    );
+  }
+
+  revalidatePath("/employees");
+  revalidatePath("/");
+  return { seeded };
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { listEmployees } from "@/lib/employees";
 import { DemoBanner } from "@/components/DemoBanner";
+import { SeedDemoDataButton } from "@/components/SeedDemoDataButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,8 +72,11 @@ export default async function EmployeesPage() {
           );
         })}
 
-        {employees.length === 0 && (
-          <p className="text-sm text-muted-foreground">No employees or contractors yet.</p>
+        {employees.length === 0 && !demo && (
+          <div className="space-y-3 sm:col-span-2">
+            <p className="text-sm text-muted-foreground">No employees or contractors yet.</p>
+            <SeedDemoDataButton />
+          </div>
         )}
       </div>
     </div>
