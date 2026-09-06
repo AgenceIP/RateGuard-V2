@@ -40,6 +40,7 @@ type Compliance = "conventional" | "shariah";
 
 type Result = {
   currency: string;
+  lockedRate: number;
   totalSar: number;
   sarPerPilgrim: number;
   totalLocal: number;
@@ -64,9 +65,14 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function defaultRateFor(currency: string) {
+  return String(LOCAL_PER_SAR[currency] ?? LOCAL_PER_SAR.USD);
+}
+
 export default function UmrahPage() {
   const [agencyName, setAgencyName] = useState("");
   const [originCode, setOriginCode] = useState<OriginCode>("CA");
+  const [lockedRate, setLockedRate] = useState(() => defaultRateFor(ORIGINS[0].currency));
   const [pilgrims, setPilgrims] = useState("100");
   const [sarPerPilgrim, setSarPerPilgrim] = useState("5000");
   const [lockDepositPct, setLockDepositPct] = useState("10");
@@ -84,12 +90,18 @@ export default function UmrahPage() {
   const [ofxError, setOfxError] = useState<string | null>(null);
   const [ofxPending, startOfxTransition] = useTransition();
 
+  function handleOriginChange(code: OriginCode) {
+    setOriginCode(code);
+    const origin = ORIGINS.find((o) => o.code === code);
+    if (origin) setLockedRate(defaultRateFor(origin.currency));
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const origin = ORIGINS.find((o) => o.code === originCode) ?? ORIGINS[0];
     const nPilgrims = Number(pilgrims) || 0;
     const nSarPerPilgrim = Number(sarPerPilgrim) || 0;
-    const rate = LOCAL_PER_SAR[origin.currency] ?? LOCAL_PER_SAR.USD;
+    const rate = Number(lockedRate) || LOCAL_PER_SAR[origin.currency] || LOCAL_PER_SAR.USD;
 
     const depositPctInput = Math.min(Math.max(Number(lockDepositPct) || 0, 0), 100);
 
@@ -102,6 +114,7 @@ export default function UmrahPage() {
 
     setResult({
       currency: origin.currency,
+      lockedRate: rate,
       totalSar,
       sarPerPilgrim: nSarPerPilgrim,
       totalLocal,
@@ -320,7 +333,7 @@ export default function UmrahPage() {
 
                 <div className="space-y-1.5">
                   <Label>Origin country</Label>
-                  <Select value={originCode} onValueChange={(v) => v && setOriginCode(v as OriginCode)}>
+                  <Select value={originCode} onValueChange={(v) => v && handleOriginChange(v as OriginCode)}>
                     <SelectTrigger className="w-full">
                       <SelectValue>{(v: OriginCode) => ORIGINS.find((o) => o.code === v)?.label ?? v}</SelectValue>
                     </SelectTrigger>
@@ -339,6 +352,25 @@ export default function UmrahPage() {
                   <div className="flex h-8 items-center rounded-lg border border-input bg-muted/50 px-2.5 text-sm text-muted-foreground">
                     SAR — Saudi Riyal
                   </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="lockedRate">
+                    Locked exchange rate (1 SAR = {ORIGINS.find((o) => o.code === originCode)?.currency ?? "?"})
+                  </Label>
+                  <Input
+                    id="lockedRate"
+                    type="number"
+                    min="0"
+                    step="0.0001"
+                    value={lockedRate}
+                    onChange={(e) => setLockedRate(e.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    The rate you&apos;re quoted for the forward/Wa&apos;ad. Prefilled with an indicative rate — replace it
+                    with your provider&apos;s actual quote.
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
@@ -501,6 +533,14 @@ export default function UmrahPage() {
                   </TableHeader>
                   <TableBody>
                     <TableRow>
+                      <TableCell className="font-medium">Locked exchange rate</TableCell>
+                      <TableCell>
+                        1 SAR = {result.lockedRate.toLocaleString("en-CA", { maximumFractionDigits: 4 })}{" "}
+                        {result.currency}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">Same for the whole group</TableCell>
+                    </TableRow>
+                    <TableRow>
                       <TableCell className="font-medium">Total Saudi Riyal required</TableCell>
                       <TableCell>{fmt(result.totalSar, "SAR")}</TableCell>
                       <TableCell>{fmt(result.sarPerPilgrim, "SAR")}</TableCell>
@@ -531,8 +571,9 @@ export default function UmrahPage() {
                   The {result.lockDepositPct}% deposit ({fmt(result.lockDeposit, result.currency)} total, {fmt(result.depositPerPilgrim, result.currency)} per pilgrim) is collateral held by the provider until settlement — it&apos;s returned or applied to the final payment, not a fee you lose. &quot;Total upfront cash required&quot; includes it because that&apos;s the capital your agency needs on hand today to lock the rate.
                 </p>
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Indicative rates for illustration only, using a representative provider markup over the mid-market
-                  rate — not a live quote. Connect a corridor provider for a firm rate.
+                  Calculated using the locked exchange rate you entered above. It&apos;s prefilled with an indicative
+                  rate for illustration only, not a live quote — replace it with your provider&apos;s actual rate for
+                  an accurate estimate.
                 </p>
               </CardContent>
             </Card>
