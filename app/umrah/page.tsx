@@ -44,8 +44,12 @@ type Result = {
   sarPerPilgrim: number;
   totalLocal: number;
   transferFee: number;
+  lockDepositPct: number;
   lockDeposit: number;
+  depositPerPilgrim: number;
   finalPerPilgrim: number;
+  totalUpfrontGroup: number;
+  totalUpfrontPerPilgrim: number;
   origin: (typeof ORIGINS)[number];
   compliance: Compliance;
 };
@@ -65,6 +69,7 @@ export default function UmrahPage() {
   const [originCode, setOriginCode] = useState<OriginCode>("CA");
   const [pilgrims, setPilgrims] = useState("100");
   const [sarPerPilgrim, setSarPerPilgrim] = useState("5000");
+  const [lockDepositPct, setLockDepositPct] = useState("10");
   const [compliance, setCompliance] = useState<Compliance>("conventional");
   const [result, setResult] = useState<Result | null>(null);
 
@@ -86,11 +91,14 @@ export default function UmrahPage() {
     const nSarPerPilgrim = Number(sarPerPilgrim) || 0;
     const rate = LOCAL_PER_SAR[origin.currency] ?? LOCAL_PER_SAR.USD;
 
+    const depositPctInput = Math.min(Math.max(Number(lockDepositPct) || 0, 0), 100);
+
     const totalSar = nPilgrims * nSarPerPilgrim;
     const totalLocal = totalSar * rate;
     const transferFee = totalLocal < 10000 ? 15 : 0;
-    const lockDeposit = totalLocal * 0.1;
+    const lockDeposit = totalLocal * (depositPctInput / 100);
     const finalPerPilgrim = nPilgrims > 0 ? (totalLocal + transferFee) / nPilgrims : 0;
+    const depositPerPilgrim = nPilgrims > 0 ? lockDeposit / nPilgrims : 0;
 
     setResult({
       currency: origin.currency,
@@ -98,8 +106,12 @@ export default function UmrahPage() {
       sarPerPilgrim: nSarPerPilgrim,
       totalLocal,
       transferFee,
+      lockDepositPct: depositPctInput,
       lockDeposit,
+      depositPerPilgrim,
       finalPerPilgrim,
+      totalUpfrontGroup: totalLocal + transferFee + lockDeposit,
+      totalUpfrontPerPilgrim: finalPerPilgrim + depositPerPilgrim,
       origin,
       compliance,
     });
@@ -356,6 +368,24 @@ export default function UmrahPage() {
                   />
                   <p className="text-xs text-muted-foreground">Accommodation, transport, and visa fees.</p>
                 </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="lockDepositPct">Rate-lock deposit (%)</Label>
+                  <Input
+                    id="lockDepositPct"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    value={lockDepositPct}
+                    onChange={(e) => setLockDepositPct(e.target.value)}
+                    placeholder="10"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upfront margin held by the provider until settlement — typically 5–10%.
+                  </p>
+                </div>
               </div>
 
               <fieldset className="space-y-2">
@@ -486,13 +516,21 @@ export default function UmrahPage() {
                       <TableCell className="text-muted-foreground">Included above</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell className="font-medium">Upfront rate-lock deposit (10%)</TableCell>
+                      <TableCell className="font-medium">Upfront rate-lock deposit ({result.lockDepositPct}%)</TableCell>
                       <TableCell>{fmt(result.lockDeposit, result.currency)}</TableCell>
-                      <TableCell className="text-muted-foreground">Agency operational capital</TableCell>
+                      <TableCell>{fmt(result.depositPerPilgrim, result.currency)}</TableCell>
+                    </TableRow>
+                    <TableRow className="bg-muted/50">
+                      <TableCell className="font-medium">Total upfront cash required</TableCell>
+                      <TableCell className="font-medium">{fmt(result.totalUpfrontGroup, result.currency)}</TableCell>
+                      <TableCell className="font-medium">{fmt(result.totalUpfrontPerPilgrim, result.currency)}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
                 <p className="mt-3 text-xs text-muted-foreground">
+                  The {result.lockDepositPct}% deposit ({fmt(result.lockDeposit, result.currency)} total, {fmt(result.depositPerPilgrim, result.currency)} per pilgrim) is collateral held by the provider until settlement — it&apos;s returned or applied to the final payment, not a fee you lose. &quot;Total upfront cash required&quot; includes it because that&apos;s the capital your agency needs on hand today to lock the rate.
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
                   Indicative rates for illustration only, using a representative provider markup over the mid-market
                   rate — not a live quote. Connect a corridor provider for a firm rate.
                 </p>
