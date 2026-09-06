@@ -21,14 +21,14 @@ export function NavBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3">
+      <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2">
         <Link href="/" className="mr-2 flex shrink-0 items-center sm:mr-4">
           <Image
             src="/brand/logo-light.jpeg"
             alt="RateGuard"
             width={480}
             height={128}
-            className="h-7 w-auto rounded-md dark:hidden"
+            className="h-12 w-auto rounded-md dark:hidden"
             priority
           />
           <Image
@@ -36,7 +36,7 @@ export function NavBar() {
             alt="RateGuard"
             width={480}
             height={128}
-            className="hidden h-7 w-auto rounded-md dark:block"
+            className="hidden h-12 w-auto rounded-md dark:block"
             priority
           />
         </Link>
